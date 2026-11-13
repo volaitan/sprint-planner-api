@@ -9,6 +9,8 @@ A REST API for planning Scrum sprints as a team. It supports user accounts with 
 
 Built with **FastAPI, SQLAlchemy 2.0 and Pydantic v2**. It runs on SQLite for development and **PostgreSQL in Docker** for production.
 
+**Front end:** [sprint-dashboard](https://github.com/volaitan/sprint-dashboard) (React + TypeScript).
+
 It grew out of my [kanban-board](https://github.com/volaitan/kanban-board) project and my postgraduate study in agile project management. It enforces the rules a Scrum team actually works by, not just stores data.
 
 ## Agile rules the API enforces
@@ -18,7 +20,7 @@ It grew out of my [kanban-board](https://github.com/volaitan/kanban-board) proje
 | One active sprint per team | Starting a second sprint returns `409` and names the one still running |
 | Sprint capacity | Adding or re-pointing stories beyond capacity returns `409` (override with `?force=true`) |
 | Can't start an empty sprint | Add stories first |
-| Sprint review | Completing a sprint sends unfinished stories **back to the backlog**, while keeping the committed and completed figures for velocity |
+| Sprint review | Completing a sprint sends unfinished stories **back to the backlog**, and records the original commitment, so velocity still shows committed vs completed |
 | Completed sprints are closed | They can't be edited and can't take new stories |
 | Team privacy | Non-members get `404`, not `403`, so team ids can't be probed |
 | Roles | Only owners manage members, and a team can't lose its last owner |
@@ -76,6 +78,8 @@ erDiagram
 | GET | `/teams/{id}/velocity` | Velocity and forecast |
 | GET / POST | `/teams/{id}/stories` | Filter by `backlog`, `sprint_id`, `status` or `assignee_id` / create |
 | GET / PATCH / DELETE | `/stories/{id}` | Read / update / delete a story |
+
+Set `CORS_ORIGINS` (comma-separated) to let a browser front end such as sprint-dashboard call the API.
 
 Interactive docs are at **`/docs`** (Swagger UI) and **`/redoc`** once the server is running.
 

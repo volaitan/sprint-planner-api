@@ -7,7 +7,8 @@ from .models import Sprint, SprintStatus, StoryStatus
 
 
 def sprint_points(sprint: Sprint) -> tuple[int, int]:
-    committed = sum(s.points for s in sprint.stories)
+    """(committed, completed). Closed sprints use the commitment recorded when they closed."""
+    committed = sprint.committed_at_close if sprint.committed_at_close is not None else sum(s.points for s in sprint.stories)
     completed = sum(s.points for s in sprint.stories if s.status == StoryStatus.done)
     return committed, completed
 

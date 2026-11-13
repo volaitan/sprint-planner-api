@@ -78,6 +78,8 @@ class Sprint(Base):
     end_date: Mapped[date] = mapped_column(Date)
     capacity: Mapped[int | None] = mapped_column(Integer, nullable=True)  # story points the team can commit to
     status: Mapped[SprintStatus] = mapped_column(Enum(SprintStatus), default=SprintStatus.planned)
+    # Snapshot taken when the sprint closes, because unfinished stories then move back to the backlog
+    committed_at_close: Mapped[int | None] = mapped_column(Integer, nullable=True)
 
     team: Mapped[Team] = relationship(back_populates="sprints")
     stories: Mapped[list[Story]] = relationship(back_populates="sprint")

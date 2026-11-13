@@ -41,6 +41,8 @@ def test_velocity_and_forecast(client, alice, team, fake_today):
 
     v = client.get(f"/teams/{team['id']}/velocity", headers=h).json()
     assert [s["completed"] for s in v["sprints"]] == completed_per_sprint
+    # Commitment includes the unfinished 2-point story, even though it went back to the backlog
+    assert [s["committed"] for s in v["sprints"]] == [p + 2 for p in completed_per_sprint]
     assert v["average"] == 11.0
     assert v["forecast_next"] == 12.0  # average of last three: (12 + 10 + 14) / 3
 

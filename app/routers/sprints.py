@@ -75,18 +75,16 @@ def complete_sprint(sprint_id: int, user: User = Depends(get_current_user), db: 
     sprint = get_sprint(db, sprint_id, user)
     if sprint.status != SprintStatus.active:
         raise HTTPException(status.HTTP_409_CONFLICT, "Only an active sprint can be completed")
-    # Snapshot the result before moving unfinished work out, so velocity stays accurate.
-    unfinished = [s for s in sprint.stories if s.status != StoryStatus.done]
-    out_committed = sum(s.points for s in sprint.stories)
-    for story in unfinished:
-        story.sprint_id = None
-        story.status = StoryStatus.todo
+    # Record the commitment before unfinished work moves out, so velocity stays accurate.
+    sprint.committed_at_close = sum(s.points for s in sprint.stories)
+    for story in sprint.stories:
+        if story.status != StoryStatus.done:
+            story.sprint_id = None
+            story.status = StoryStatus.todo
     sprint.status = SprintStatus.completed
     db.commit()
     db.refresh(sprint)
-    out = sprint_out(sprint)
-    out.committed_points = out_committed
-    return out
+    return sprint_out(sprint)
 
 
 @router.get("/sprints/{sprint_id}/burndown", response_model=Burndown)
