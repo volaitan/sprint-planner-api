@@ -1,0 +1,27 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: sprint
+      POSTGRES_PASSWORD: sprint
+      POSTGRES_DB: sprint_planner
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U sprint -d sprint_planner"]
+      interval: 5s
+      retries: 10
+
+  api:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: postgresql+psycopg://sprint:sprint@db:5432/sprint_planner
+      SECRET_KEY: ${SECRET_KEY:-please-set-a-long-random-secret-key-here}
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  pgdata:
